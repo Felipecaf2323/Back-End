@@ -1,0 +1,6 @@
+[2025-05-19T16:26:22.381Z] MongoServerError: E11000 duplicate key error collection: ecommerce.users index: email_1 dup key: { email: "joao@example.com" }
+    at InsertOneOperation.execute (C:\Users\fpado\Downloads\ecommerce-backend\ecommerce-backend\node_modules\mongodb\lib\operations\insert.js:51:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async tryOperation (C:\Users\fpado\Downloads\ecommerce-backend\ecommerce-backend\node_modules\mongodb\lib\operations\execute_operation.js:207:20)
+    at async executeOperation (C:\Users\fpado\Downloads\ecommerce-backend\ecommerce-backend\node_modules\mongodb\lib\operations\execute_operation.js:75:16)
+    at async Collection.insertOne (C:\Users\fpado\Downloads\ecommerce-backend\ecommerce-backend\node_modules\mongodb\lib\collection.js:157:16)
