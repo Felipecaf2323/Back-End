@@ -2,6 +2,8 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const readline = require('readline');
 
+const logger = require('./logger/Logger')
+
 const User = require('./models/User');
 const Product = require('./models/Product');
 const Order = require('./models/Order');
@@ -20,6 +22,9 @@ async function menuPrincipal() {
   console.log('1. Cadastrar');
   console.log('2. Editar');
   console.log('3. Remover');
+  console.log('4. Consultar');
+  console.log('5. Buscar Usuário por Nome');
+  console.log('6. Buscar Produto por Nome');
   console.log('0. Sair');
 
   const opcao = await question('Escolha uma opção: ');
@@ -106,6 +111,36 @@ async function main() {
         break;
       }
 
+      case '4': { // Consultar
+        const entidade = await menuEntidade();
+        switch (entidade) {
+          case '1':
+            console.log('\n-> Consultar Usuários');
+            await consultarUsuarios();
+            break;
+          case '2':
+            console.log('\n-> Consultar Produtos');
+            await consultarProdutos();
+            break;
+          case '3':
+            console.log('\n-> Não é possível listar serviços');
+            break;
+          default:
+            console.log('Entidade inválida');
+        }
+        break;
+      }
+
+      case '5':
+        console.log('\n-> Buscar Usuário por Nome');
+        await buscarUsuarioPorNome();
+      break;
+
+      case '6':
+        console.log('\n-> Buscar Produto por Nome');
+        await buscarProdutoPorNome();
+      break;
+
       case '0':
         continuar = false;
         break;
@@ -145,6 +180,7 @@ async function cadastrarUsuario() {
     console.log('Usuário cadastrado com sucesso!');
   } catch (err) {
     console.error('Erro ao salvar usuário:', err.message);
+    logger.error(err);
   }
 }
 
@@ -168,6 +204,7 @@ async function cadastrarProduto() {
     console.log('Produto cadastrado com sucesso!');
   } catch (err) {
     console.error('Erro ao salvar produto:', err.message);
+    logger.error(err);
   }
 }
 
@@ -223,10 +260,9 @@ async function cadastrarPedido() {
     console.log('Pedido criado com sucesso!');
   } catch (err) {
     console.error('Erro ao criar pedido:', err.message);
+    logger.error(err);
   }
 }
-
-
 
 
 //FUNÇÕES DE REMOÇÃO:
@@ -259,7 +295,6 @@ async function removerProduto() {
   await Product.deleteOne({ _id: product._id });
   console.log('Produto removido com sucesso!');
 }
-
 
 
 //MÉTODOS PARA EDIÇÃO DE REGISTROS:
@@ -306,5 +341,76 @@ async function editarProduto() {
 
   console.log('Produto editado com sucesso!');
 }
+
+
+//MÉTODOS PARA CONSULTA:
+async function consultarUsuarios() {
+  const usuarios = await User.find();
+  if (usuarios.length === 0) return console.log('Nenhum usuário cadastrado.');
+
+  console.log('\n=== Lista de Usuários ===');
+  usuarios.forEach((u, i) => {
+    console.log(`${i + 1}. Nome: ${u.name}, Email: ${u.email}`);
+  });
+}
+
+async function consultarProdutos() {
+  const produtos = await Product.find();
+  if (produtos.length === 0) return console.log('Nenhum produto cadastrado.');
+
+  console.log('\n=== Lista de Produtos ===');
+  produtos.forEach((p, i) => {
+    console.log(`${i + 1}. Nome: ${p.name}, Preço: R$${p.price.toFixed(2)}, Estoque: ${p.stock}`);
+  });
+}
+
+//MÉTODOS PARA BUSCAR USUÁRIOS E PRODUTOS:
+async function buscarUsuarioPorNome() {
+  const termo = await question('Digite o nome do usuário para buscar: ');
+
+  if (!termo.trim()) {
+    console.log('Nome inválido.');
+    return;
+  }
+
+  const usuarios = await User.find({
+    name: { $regex: termo, $options: 'i' } // busca parcial e case-insensitive
+  });
+
+  if (usuarios.length === 0) {
+    console.log('Nenhum usuário encontrado.');
+    return;
+  }
+
+  console.log('\n=== Resultado da busca de usuários ===');
+  usuarios.forEach((u, i) => {
+    console.log(`${i + 1}. Nome: ${u.name}, Email: ${u.email}`);
+  });
+}
+
+async function buscarProdutoPorNome() {
+  const termo = await question('Digite o nome do produto para buscar: ');
+
+  if (!termo.trim()) {
+    console.log('Nome inválido.');
+    return;
+  }
+
+  const produtos = await Product.find({
+    name: { $regex: termo, $options: 'i' }
+  });
+
+  if (produtos.length === 0) {
+    console.log('Nenhum produto encontrado.');
+    return;
+  }
+
+  console.log('\n=== Resultado da busca de produtos ===');
+  produtos.forEach((p, i) => {
+    console.log(`${i + 1}. Nome: ${p.name}, Preço: R$${p.price.toFixed(2)}, Estoque: ${p.stock}`);
+  });
+}
+
+
 
 main();

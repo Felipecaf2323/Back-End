@@ -1,17 +1,19 @@
 const fs = require('fs');
 const path = require('path');
 
-const logPath = path.join(__dirname, '..', 'logs');
-const logFile = path.join(logPath, 'error.log');
+// Caminho para o arquivo de log (na raiz do projeto)
+const logPath = path.join(__dirname, '..', 'error.log');
 
-// Garante que a pasta exista
-if (!fs.existsSync(logPath)) {
-  fs.mkdirSync(logPath);
+// Função para registrar erros
+function error(err) {
+  const mensagem =
+    `[${new Date().toLocaleString()}] ${err.stack || err.message || err}\n`;
+
+  fs.appendFile(logPath, mensagem, (fsErr) => {
+    if (fsErr) {
+      console.error('Erro ao escrever no arquivo de log:', fsErr.message);
+    }
+  });
 }
 
-module.exports = {
-  error: (err) => {
-    const message = `[${new Date().toISOString()}] ${err.stack || err.message || err}\n`;
-    fs.appendFileSync(logFile, message);
-  }
-};
+module.exports = { error };
