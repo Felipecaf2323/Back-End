@@ -8,6 +8,9 @@ const User = require('./models/User');
 const Product = require('./models/Product');
 const Order = require('./models/Order');
 
+const bcrypt = require('bcrypt');
+
+
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
@@ -83,7 +86,7 @@ async function main() {
             await editarProduto();
             break;
           case '3':
-            console.log('\n-> Não é possível editar ordens já cadastradas');
+            await editarPedido();
             break;
           default:
             console.log('Entidade inválida');
@@ -103,7 +106,7 @@ async function main() {
             await removerProduto();
             break;
           case '3':
-            console.log('\n-> Não é possível remover ordens já cadastradas');
+            await removerPedido();
             break;
           default:
             console.log('Entidade inválida');
@@ -123,7 +126,7 @@ async function main() {
             await consultarProdutos();
             break;
           case '3':
-            console.log('\n-> Não é possível listar serviços');
+            await consultarPedidos();
             break;
           default:
             console.log('Entidade inválida');
@@ -161,19 +164,13 @@ async function cadastrarUsuario() {
   const email = await question('Email: ');
   const password = await question('Senha: ');
 
-  if (!name || !email || !password) {
-    console.log('Todos os campos são obrigatórios.');
-    return;
-  }
+  if (!name || !email || !password) return console.log('Todos os campos são obrigatórios.');
 
-  // Validação simples de email
   const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  if (!emailValido) {
-    console.log('Email inválido.');
-    return;
-  }
+  if (!emailValido) return console.log('Email inválido.');
 
-  const user = new User({ name, email, password });
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const user = new User({ name, email, password: hashedPassword });
 
   try {
     await user.save();
@@ -183,6 +180,7 @@ async function cadastrarUsuario() {
     logger.error(err);
   }
 }
+
 
 async function cadastrarProduto() {
   const name = await question('Nome do produto: ');
@@ -302,7 +300,6 @@ async function editarUsuario() {
   const usuarios = await User.find();
   if (usuarios.length === 0) return console.log('Nenhum usuário cadastrado.');
 
-  console.log('\nUsuários disponíveis:');
   usuarios.forEach((u, i) => console.log(`${i + 1}. ${u.name} (${u.email})`));
   const userIndex = parseInt(await question('Escolha o número do usuário para editar: ')) - 1;
   const user = usuarios[userIndex];
@@ -310,11 +307,13 @@ async function editarUsuario() {
 
   const novoNome = await question(`Novo nome (${user.name}): `) || user.name;
   const novoEmail = await question(`Novo e-mail (${user.email}): `) || user.email;
-  const novaSenha = await question(`Nova senha (${user.password}): `) || user.password;
+  const novaSenha = await question('Nova senha (deixe em branco para manter): ');
 
   user.name = novoNome;
   user.email = novoEmail;
-  user.password = novaSenha;
+  if (novaSenha.trim()) {
+    user.password = await bcrypt.hash(novaSenha, 10);
+  }
   await user.save();
 
   console.log('Usuário editado com sucesso!');
@@ -411,6 +410,110 @@ async function buscarProdutoPorNome() {
   });
 }
 
+
+//nova função de consultar por pedidos(order): - 01/06/2025
+async function consultarPedidos() {
+  const pedidos = await Order.find().populate('user').populate('products.product');
+  if (pedidos.length === 0) return console.log('Nenhum pedido cadastrado.');
+
+  pedidos.forEach((o, i) => {
+    console.log(`\nPedido ${i + 1}:`);
+
+    if (o.user) {
+      console.log(`Usuário: ${o.user.name} (${o.user.email})`);
+    } else {
+      console.log('Usuário: [Usuário removido]');
+    }
+
+    o.products.forEach(p => {
+      const nomeProduto = p.product ? p.product.name : '[Produto removido]';
+      console.log(`- Produto: ${nomeProduto}, Quantidade: ${p.quantity}`);
+    });
+
+    console.log(`Total: R$${o.total.toFixed(2)}`);
+    console.log(`Data: ${o.createdAt?.toLocaleString() || 'Data desconhecida'}`);
+  });
+}
+
+
+//nova função de remover por pedidos(order): - 01/06/2025
+async function removerPedido() {
+  const pedidos = await Order.find().populate('user');
+  if (pedidos.length === 0) return console.log('Nenhum pedido cadastrado.');
+
+pedidos.forEach((p, i) => {
+  const nomeUsuario = p.user?.name || 'Usuário removido';
+  const data = p.createdAt?.toLocaleDateString() || 'Data desconhecida';
+  console.log(`${i + 1}. Pedido de ${nomeUsuario} em ${data}`);
+});  const index = parseInt(await question('Escolha o número do pedido para remover: ')) - 1;
+  const pedido = pedidos[index];
+
+  if (!pedido) return console.log('Pedido inválido.');
+
+  await Order.deleteOne({ _id: pedido._id });
+  console.log('Pedido removido com sucesso!');
+}
+
+//nova função de editar pedidos(order): - 01/06/2025
+async function editarPedido() {
+  const pedidos = await Order.find().populate('user').populate('products.product');
+  if (pedidos.length === 0) return console.log('Nenhum pedido cadastrado.');
+
+  console.log('\nPedidos disponíveis:');
+  pedidos.forEach((p, i) => {
+    const nomeUsuario = p.user?.name || 'Usuário removido';
+    const data = p.createdAt?.toLocaleString() || 'Data desconhecida';
+    console.log(`${i + 1}. Pedido de ${nomeUsuario} em ${data}`);
+  });
+
+  const pedidoIndex = parseInt(await question('Escolha o número do pedido para editar: ')) - 1;
+  const pedido = pedidos[pedidoIndex];
+  if (!pedido) return console.log('Pedido inválido.');
+
+  // Restaurar estoque dos produtos anteriores
+  for (const item of pedido.products) {
+    if (item.product) {
+      const produto = await Product.findById(item.product._id);
+      if (produto) {
+        produto.stock += item.quantity;
+        await produto.save();
+      }
+    }
+  }
+
+  // Escolher novo usuário
+  const usuarios = await User.find();
+  usuarios.forEach((u, i) => console.log(`${i + 1}. ${u.name} (${u.email})`));
+  const userIndex = parseInt(await question('Escolha o novo número do usuário: ')) - 1;
+  const novoUsuario = usuarios[userIndex];
+  if (!novoUsuario) return console.log('Usuário inválido.');
+
+  // Escolher novo produto e quantidade
+  const produtos = await Product.find();
+  produtos.forEach((p, i) =>
+    console.log(`${i + 1}. ${p.name} - R$${p.price.toFixed(2)} (Estoque: ${p.stock})`)
+  );
+  const productIndex = parseInt(await question('Escolha o novo número do produto: ')) - 1;
+  const novoProduto = produtos[productIndex];
+  if (!novoProduto) return console.log('Produto inválido.');
+
+  const quantidade = parseInt(await question('Quantidade desejada: '));
+  if (isNaN(quantidade) || quantidade <= 0 || quantidade > novoProduto.stock) {
+    return console.log('Quantidade inválida ou maior que o estoque.');
+  }
+
+  // Atualiza estoque
+  novoProduto.stock -= quantidade;
+  await novoProduto.save();
+
+  // Atualiza pedido
+  pedido.user = novoUsuario._id;
+  pedido.products = [{ product: novoProduto._id, quantity: quantidade }];
+  pedido.total = novoProduto.price * quantidade;
+  await pedido.save();
+
+  console.log('Pedido editado com sucesso!');
+}
 
 
 main();
