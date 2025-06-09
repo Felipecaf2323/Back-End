@@ -8,10 +8,12 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "- Felipe Padovani Seugling - 2453487\r - Antonio Marcos Fontes Darienço - 2454106",
   "dependencies": {
     "bcrypt": "^6.0.0",
     "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "express-session": "^1.18.1",
     "mongoose": "^8.15.0"
   }
 }
