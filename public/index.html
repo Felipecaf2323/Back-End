@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛒 E-commerce - Sistema de Autenticação</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.95);
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        .welcome-section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .feature-card {
+            background: rgba(255,255,255,0.9);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .feature-icon {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-shopping-cart me-2"></i>E-commerce API
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="products.html">
+                    <i class="fas fa-box me-1"></i>Produtos
+                </a>
+                <a class="nav-link" href="comprar.html">
+                    <i class="fas fa-credit-card me-1"></i>Comprar
+                </a>
+                <button class="btn btn-outline-light me-2" onclick="showLoginForm()">
+                    <i class="fas fa-sign-in-alt me-1"></i>Login
+                </button>
+                <button class="btn btn-light" onclick="showRegisterForm()">
+                    <i class="fas fa-user-plus me-1"></i>Cadastro
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <!-- Welcome Section -->
+        <div class="welcome-section text-center text-white mb-5">
+            <h1 class="display-4 fw-bold mb-3">
+                <i class="fas fa-rocket me-3"></i>Bem-vindo ao E-commerce API
+            </h1>
+            <p class="lead">Sistema completo de autenticação e gestão de usuários</p>
+            <p class="mb-0">Projeto 2 - Programação Web Back-End</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="row">
+            <!-- Login Form -->
+            <div class="col-md-6 mb-4" id="loginSection">
+                <div class="card">
+                    <div class="card-body p-4">
+                        <h3 class="card-title text-center mb-4">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                        </h3>
+                        <form id="loginForm">
+                            <div class="mb-3">
+                                <label for="loginEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="loginEmail" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="loginPassword" class="form-label">Senha</label>
+                                <input type="password" class="form-control" id="loginPassword" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-sign-in-alt me-2"></i>Entrar
+                            </button>
+                        </form>
+                        <div id="loginAlert" class="alert mt-3" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Register Form -->
+            <div class="col-md-6 mb-4" id="registerSection">
+                <div class="card">
+                    <div class="card-body p-4">
+                        <h3 class="card-title text-center mb-4">
+                            <i class="fas fa-user-plus me-2"></i>Cadastro
+                        </h3>
+                        <form id="registerForm">
+                            <div class="mb-3">
+                                <label for="registerName" class="form-label">Nome</label>
+                                <input type="text" class="form-control" id="registerName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="registerEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="registerEmail" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="registerPassword" class="form-label">Senha</label>
+                                <input type="password" class="form-control" id="registerPassword" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-user-plus me-2"></i>Cadastrar
+                            </button>
+                        </form>
+                        <div id="registerAlert" class="alert mt-3" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h2 class="text-center text-white mb-4">
+                    <i class="fas fa-star me-2"></i>Funcionalidades
+                </h2>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h5>Autenticação Segura</h5>
+                    <p>Login e cadastro com validação de campos e criptografia de senhas</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h5>Gestão de Usuários</h5>
+                    <p>CRUD completo de usuários com rotas protegidas</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <h5>Gestão de Produtos</h5>
+                    <p>Sistema completo de cadastro e listagem de produtos</p>
+                    <a href="products.html" class="btn btn-primary btn-sm mt-2">
+                        <i class="fas fa-arrow-right me-1"></i>Ver Produtos
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Status -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h4>
+                            <i class="fas fa-server me-2"></i>Status da API
+                        </h4>
+                        <div id="apiStatus" class="mt-3">
+                            <span class="badge bg-warning">Verificando...</span>
+                        </div>
+                        <div class="mt-3">
+                            <button class="btn btn-outline-primary btn-sm" onclick="checkApiStatus()">
+                                <i class="fas fa-sync-alt me-1"></i>Verificar Status
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Modal -->
+    <div class="modal fade" id="dashboardModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="userInfo" class="mb-4"></div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6><i class="fas fa-users me-2"></i>Usuários</h6>
+                                    <button class="btn btn-primary btn-sm" onclick="listUsers()">
+                                        Listar Usuários
+                                    </button>
+                                    <div id="usersList" class="mt-3"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6><i class="fas fa-cog me-2"></i>Ações</h6>
+                                    <a href="products.html" class="btn btn-success btn-sm me-2">
+                                        <i class="fas fa-box me-1"></i>Gerenciar Produtos
+                                    </a>
+                                    <a href="comprar.html" class="btn btn-warning btn-sm me-2">
+                                        <i class="fas fa-credit-card me-1"></i>Comprar Produtos
+                                    </a>
+                                    <a href="admin-pedidos.html" class="btn btn-info btn-sm me-2" id="adminPedidosLink" style="display: none;">
+                                        <i class="fas fa-list me-1"></i>Todos os Pedidos
+                                    </a>
+                                    <button class="btn btn-danger btn-sm" onclick="logout()">
+                                        <i class="fas fa-sign-out-alt me-1"></i>Logout
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Edição de Usuário (Admin) -->
+    <div class="modal fade" id="editUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-user-edit me-2"></i>Editar Usuário</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editUserForm">
+                        <input type="hidden" id="editUserId">
+                        <div class="mb-3">
+                            <label for="editUserName" class="form-label">Nome</label>
+                            <input type="text" class="form-control" id="editUserName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editUserEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="editUserEmail" required>
+                        </div>
+                        <div id="editUserAlert" class="alert mt-2" style="display: none;"></div>
+                        <button type="submit" class="btn btn-primary w-100">Salvar Alterações</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fim do Modal de Edição de Usuário -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html> 

@@ -1,0 +1,42 @@
+{
+  "name": "E-commerce API Tests",
+  "description": "Coleção de testes para API E-commerce",
+  "baseUrl": "http://localhost:3000",
+  "requests": [
+    {
+      "name": "1. Cadastro de Usuário",
+      "method": "POST",
+      "url": "/auth/register",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nome": "João Silva",
+        "email": "joao@teste.com",
+        "senha": "123456"
+      }
+    },
+    {
+      "name": "2. Login",
+      "method": "POST",
+      "url": "/auth/login",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "email": "joao@teste.com",
+        "senha": "123456"
+      }
+    },
+    {
+      "name": "3. Verificar Sessão",
+      "method": "GET",
+      "url": "/auth/session"
+    },
+    {
+      "name": "4. Logout",
+      "method": "POST",
+      "url": "/auth/logout"
+    }
+  ]
+} 

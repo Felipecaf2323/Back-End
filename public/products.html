@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛒 Produtos - E-commerce</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.95);
+        }
+        .product-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        .price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stock {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-shopping-cart me-2"></i>E-commerce API
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="index.html">
+                    <i class="fas fa-home me-1"></i>Início
+                </a>
+                <a class="nav-link active" href="products.html">
+                    <i class="fas fa-box me-1"></i>Produtos
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <!-- Header -->
+        <div class="text-center text-white mb-5">
+            <h1 class="display-4 fw-bold mb-3">
+                <i class="fas fa-boxes me-3"></i>Gestão de Produtos
+            </h1>
+            <p class="lead">Sistema completo de cadastro e listagem de produtos</p>
+        </div>
+
+        <!-- Product Management -->
+        <div class="row">
+            <!-- Add Product Form -->
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body p-4">
+                        <h4 class="card-title mb-4">
+                            <i class="fas fa-plus-circle me-2"></i>Adicionar Produto
+                        </h4>
+                        <form id="addProductForm">
+                            <div class="mb-3">
+                                <label for="productName" class="form-label">Nome do Produto</label>
+                                <input type="text" class="form-control" id="productName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="productPrice" class="form-label">Preço</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R$</span>
+                                    <input type="number" class="form-control" id="productPrice" step="0.01" min="0" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="productStock" class="form-label">Estoque</label>
+                                <input type="number" class="form-control" id="productStock" min="0" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="productDescription" class="form-label">Descrição</label>
+                                <textarea class="form-control" id="productDescription" rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-plus me-2"></i>Adicionar Produto
+                            </button>
+                        </form>
+                        <div id="addProductAlert" class="alert mt-3" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products List -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="card-title mb-0">
+                                <i class="fas fa-list me-2"></i>Lista de Produtos
+                            </h4>
+                            <button class="btn btn-outline-primary" onclick="loadProducts()">
+                                <i class="fas fa-sync-alt me-1"></i>Atualizar
+                            </button>
+                        </div>
+                        <div id="productsList">
+                            <div class="text-center text-muted">
+                                <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+                                <p>Carregando produtos...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demo Products -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h3 class="text-white text-center mb-4">
+                    <i class="fas fa-star me-2"></i>Produtos de Demonstração
+                </h3>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card product-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-laptop fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Notebook Dell</h5>
+                        <p class="card-text">Notebook Dell Inspiron com processador Intel i5</p>
+                        <div class="price mb-2">R$ 3.499,00</div>
+                        <div class="stock mb-3">Estoque: 15 unidades</div>
+                        <button class="btn btn-primary btn-sm">
+                            <i class="fas fa-shopping-cart me-1"></i>Adicionar ao Carrinho
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card product-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-mobile-alt fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Smartphone Samsung</h5>
+                        <p class="card-text">Samsung Galaxy S21 com 128GB de armazenamento</p>
+                        <div class="price mb-2">R$ 2.899,00</div>
+                        <div class="stock mb-3">Estoque: 8 unidades</div>
+                        <button class="btn btn-primary btn-sm">
+                            <i class="fas fa-shopping-cart me-1"></i>Adicionar ao Carrinho
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card product-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-headphones fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Fones Bluetooth</h5>
+                        <p class="card-text">Fones de ouvido sem fio com cancelamento de ruído</p>
+                        <div class="price mb-2">R$ 299,00</div>
+                        <div class="stock mb-3">Estoque: 25 unidades</div>
+                        <button class="btn btn-primary btn-sm">
+                            <i class="fas fa-shopping-cart me-1"></i>Adicionar ao Carrinho
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Edição de Produto -->
+    <div class="modal fade" id="editProductModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Editar Produto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editProductForm">
+                        <input type="hidden" id="editProductId">
+                        <div class="mb-3">
+                            <label for="editProductName" class="form-label">Nome do Produto</label>
+                            <input type="text" class="form-control" id="editProductName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editProductPrice" class="form-label">Preço</label>
+                            <div class="input-group">
+                                <span class="input-group-text">R$</span>
+                                <input type="number" class="form-control" id="editProductPrice" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editProductStock" class="form-label">Estoque</label>
+                            <input type="number" class="form-control" id="editProductStock" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editProductDescription" class="form-label">Descrição</label>
+                            <textarea class="form-control" id="editProductDescription" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-save me-2"></i>Salvar Alterações
+                        </button>
+                    </form>
+                    <div id="editProductAlert" class="alert mt-3" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/products.js"></script>
+</body>
+</html> 
